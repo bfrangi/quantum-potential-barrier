@@ -28,7 +28,7 @@ a = 2 #Width of the potential barrier (positive)
 V_0 = 0.1 #Height of the potential barrier (Potential is normalized as V = V_real/E_h)
 m = 1 #Mass of the particle (Mass is normalized with: m = m_real/m_e) ---> m = 1 is fixed!!
 
-Dt = 0.1 #Time interval (Time is normalized with: t = t_real · E_h/h_bar)
+Dt = 0.05 #Time interval (Time is normalized with: t = t_real · E_h/h_bar)
 
 #Note also that energy is normalized as E = E_real/E_h
 
@@ -112,9 +112,7 @@ def modulus_squared(k, mesh):
     return phi_k_moduli_list
 
 # PLOT ANIMATION
-from random import randint
 def animate(i):
-    pt = randint(1,9) # grab a random integer to be the next y-value in the animation
     x = msh[i]['x']
     y = msh[i]['modulus_squared_phi']
 
@@ -135,7 +133,7 @@ if __name__=="__main__":
     x = []
     y = []
     fig, ax = plt.subplots()
-    ani = FuncAnimation(fig, animate, frames=100, interval=200, repeat=True)
+    ani = FuncAnimation(fig, animate, frames=100, interval=10, repeat=True)
 
     plt.show()
 
