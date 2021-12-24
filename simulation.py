@@ -2,16 +2,18 @@ import numpy as np
 from numpy import pi
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
-from progressbar import AnimatedMarker, Bar, ETA, FileTransferSpeed, Percentage, ProgressBar, RotatingMarker
-widgets = ['Computing:', Percentage(), ' ', AnimatedMarker(markers='-\|/'),' ', Bar('█'), ' ', ETA(), ' ', FileTransferSpeed()]
+from progressbar import AnimatedMarker, Bar, ETA, FileTransferSpeed, Percentage, ProgressBar
+widgets = ['Computing:', Percentage(), ' ', AnimatedMarker(markers='-\|/'),' ', Bar('█'), ' ', ETA(), ' ', FileTransferSpeed(unit="it")]
 pbar1 = ProgressBar(widgets=widgets, maxval=10000000)
 pbar2 = ProgressBar(widgets=widgets, maxval=10000000)
+pbar3 = ProgressBar(widgets=widgets, maxval=10000000)
 
 
-# CONSTANTS
+# MATHEMATICAL CONSTANTS
 e = np.exp(1) #Constant e
 I = 1j #Complex unit
 
+# CONSTANTS FOR NORMALIZATION
 m_e = 9.1093837015*10**(-31) #Mass of the electron
 epsilon_0 = 8.85*10**(-12) #Vacuum permitivity
 h_bar = 1.054571*10**(-34) #Reduced Plank's constant
@@ -19,22 +21,21 @@ q_e = 1.6*10**(-19) #Elementary charge
 a_0 = 4 * pi * epsilon_0 * h_bar**2 / ( m_e * q_e**2 ) #Bohr's Radius
 E_h = h_bar**2/ ( m_e * a_0**2 )
 
-M = 2401 #Number of x values
+# NORMALIZED VALUES OF THE PARAMETERS
 sigma_0 = 3 #Spatial width of the wavefunction
 k_0 = 1
 x_0 = -10 #Value around which the inital wave function is centered
 
-
-# NORMALIZED VALUES OF THE PARAMETERS
 x_min = -60 #Min value of x (Distance is normalized with: x = x_real/a_0)
 x_max = 60 #Max value of x                 
-Dx = (x_max - x_min) / float(M - 1) #Space interval
+Dx = 0.05#(x_max - x_min) / float(M - 1) #Space interval
+M = int(1 + (x_max - x_min) / Dx)#2401 #Number of x values
 l = 2 #Width of the potential barrier (positive)
 V_0 = 2 #Height of the potential barrier (Potential is normalized as V = V_real/E_h)
 m = 1 #Mass of the particle (Mass is normalized with: m = m_real/m_e) ---> m = 1 is fixed!!
 
-N = 1000 #Total values of time (Time is normalized with: t = t_real · E_h/h_bar)
-Dt = 0.1 #Time interval 
+N = 500#5000 #Total values of time (Time is normalized with: t = t_real · E_h/h_bar)
+Dt = 0.005 #Time interval 
 t = N * Dt #Total time 
 
 #Note also that energy is normalized as E = E_real/E_h
@@ -78,9 +79,22 @@ def modulus_squared(mat):
             mod_sq[row, col] = np.absolute(mat[row, col])**2
     return mod_sq
 
+def integral_modulus_squared(mod_sq):
+    print("Integral of the Modulus Squared of the Wave Function")
+    integral_list = []
+    for col in pbar3(range(N)):
+        integral = 0
+        for row in range(M):
+            if row == 0 or row == M - 1:
+                integral += 0.5 * mod_sq[row, col] * Dx
+            else:
+                integral += mod_sq[row, col] * Dx
+        integral_list.append(integral)
+    return integral_list
+
 # PLOT ANIMATION
 def animate(i):
-    y = wf_modulus_squared[:,i]
+    y = wf_modulus_squared[:,10*i]
     ax.clear()
     ax.axvspan(0, l, alpha=0.5, color='black')
     ax.plot(x, y, color='blue', alpha=0.5)
@@ -146,9 +160,14 @@ if __name__=="__main__":
     # CALCULATE THE MODULUS
     wf_modulus_squared = modulus_squared(wf)
 
+    # CALCULATE INTEGRAL
+    f = open("integral squared of the modulus.txt", 'w')
+    f.writelines([ str(integral) + "\n" for integral in integral_modulus_squared(wf_modulus_squared)])
+    f.close()
+
     # PLOT THE FIGURE
     fig, ax = plt.subplots()
-    ani = FuncAnimation(fig, animate, frames=N, interval=1, repeat=False)
+    ani = FuncAnimation(fig, animate, frames=int(N/10), interval=Dt/10, repeat=False)
 
     plt.show()
 
