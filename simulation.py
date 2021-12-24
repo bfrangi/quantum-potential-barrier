@@ -85,7 +85,7 @@ def animate(i):
     ax.axvspan(0, l, alpha=0.5, color='black')
     ax.plot(x, y, color='blue', alpha=0.5)
     ax.fill_between(x, y, alpha=0.5, color='blue')
-    ax.set_xlim([-60,20])
+    ax.set_xlim([-60,60])
     ax.set_ylim([0,0.5])
 
 # MAIN FUNCTION
@@ -120,7 +120,6 @@ if __name__=="__main__":
             a_prime[0] = a / d(0)
         else:
             a_prime[i] = a / ( d(i) - a * a_prime[i - 1] )
-
 
     S = np.matmul(R, wf[:,0])
     s_prime = np.zeros([M,1], dtype='complex')
