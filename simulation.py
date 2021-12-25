@@ -1,45 +1,7 @@
-import numpy as np
-from numpy import pi
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
-from progressbar import AnimatedMarker, Bar, ETA, FileTransferSpeed, Percentage, ProgressBar
-widgets = ['Computing:', Percentage(), ' ', AnimatedMarker(markers='-\|/'),' ', Bar('█'), ' ', ETA(), ' ', FileTransferSpeed(unit="it")]
-pbar1 = ProgressBar(widgets=widgets, maxval=10000000)
-pbar2 = ProgressBar(widgets=widgets, maxval=10000000)
-pbar3 = ProgressBar(widgets=widgets, maxval=10000000)
-
-
-# MATHEMATICAL CONSTANTS
-e = np.exp(1) #Constant e
-I = 1j #Complex unit
-
-# CONSTANTS FOR NORMALIZATION
-m_e = 9.1093837015*10**(-31) #Mass of the electron
-epsilon_0 = 8.85*10**(-12) #Vacuum permitivity
-h_bar = 1.054571*10**(-34) #Reduced Plank's constant
-q_e = 1.6*10**(-19) #Elementary charge
-a_0 = 4 * pi * epsilon_0 * h_bar**2 / ( m_e * q_e**2 ) #Bohr's Radius
-E_h = h_bar**2/ ( m_e * a_0**2 )
-
-# NORMALIZED VALUES OF THE PARAMETERS
-sigma_0 = 3 #Spatial width of the wavefunction
-k_0 = 1
-x_0 = -10 #Value around which the inital wave function is centered
-
-x_min = -60 #Min value of x (Distance is normalized with: x = x_real/a_0)
-x_max = 60 #Max value of x                 
-Dx = 0.05#(x_max - x_min) / float(M - 1) #Space interval
-M = int(1 + (x_max - x_min) / Dx)#2401 #Number of x values
-l = 2 #Width of the potential barrier (positive)
-V_0 = 2 #Height of the potential barrier (Potential is normalized as V = V_real/E_h)
-m = 1 #Mass of the particle (Mass is normalized with: m = m_real/m_e) ---> m = 1 is fixed!!
-
-N = 500#5000 #Total values of time (Time is normalized with: t = t_real · E_h/h_bar)
-Dt = 0.005 #Time interval 
-t = N * Dt #Total time 
-
-#Note also that energy is normalized as E = E_real/E_h
-
+from quantumpython import *
+from initial_parameters import *
 
 # POTENTIAL FUNCTION
 def V(x):
@@ -59,7 +21,6 @@ def generate_x_and_t(M, Dx, x_min, N, Dt):
     return np.array(x), np.array(t)
 
 # INITIAL WAVE FUNCTION
-
 def initial_wf(x_vector):
     wf_0 = np.zeros(len(x_vector), dtype='complex')
     for i in range(len(x_vector)):
@@ -70,7 +31,6 @@ def phi_0(x):
     return ( pi * sigma_0**2 )**( -1/4 ) * e**( I * k_0 * x) * e**( - (x - x_0)**2 / (2*sigma_0**2) )
 
 # MODULUS SQUARED OF THE WAVE FUNCTION
-
 def modulus_squared(mat):
     print("Modulus Squared of the Wave Function")
     mod_sq = np.zeros([M, N])
@@ -79,6 +39,7 @@ def modulus_squared(mat):
             mod_sq[row, col] = np.absolute(mat[row, col])**2
     return mod_sq
 
+# INTEGRAL OF THE MODULUS SQUARED OF THE WAVEFUNCTION
 def integral_modulus_squared(mod_sq):
     print("Integral of the Modulus Squared of the Wave Function")
     integral_list = []
@@ -92,6 +53,11 @@ def integral_modulus_squared(mod_sq):
         integral_list.append(integral)
     return integral_list
 
+def export_integral(wf_modulus_squared):
+    f = open("integral_of_the_modulus_squared.txt", 'w')
+    f.writelines([ str(integral) + "\n" for integral in integral_modulus_squared(wf_modulus_squared)])
+    f.close()
+
 # PLOT ANIMATION
 def animate(i):
     y = wf_modulus_squared[:,10*i]
@@ -102,13 +68,13 @@ def animate(i):
     ax.set_xlim([-60,60])
     ax.set_ylim([0,0.5])
 
-# MAIN FUNCTION
-if __name__=="__main__":
+# MAIN FUNCTIONS
+def main_from_scratch():
     # CREATE SPACE AND TIME VECTORS AND WAVE FUNCTION MATRIX
     x, t = generate_x_and_t(M, Dx, x_min, N, Dt)#create the space and time vectors
     wf = np.zeros([M, N], dtype='complex')# Create a matrix to store the wave function accross space (rows) and time (columns)
     wf[:,0] = initial_wf(x)# Set the initial wave function
-
+    
     # FIND MATRICES L AND R
     alpha = Dt / ( 4 * Dx**2 )
     beta = 1 +  2 * I * alpha
@@ -160,15 +126,49 @@ if __name__=="__main__":
     # CALCULATE THE MODULUS
     wf_modulus_squared = modulus_squared(wf)
 
-    # CALCULATE INTEGRAL
-    f = open("integral squared of the modulus.txt", 'w')
-    f.writelines([ str(integral) + "\n" for integral in integral_modulus_squared(wf_modulus_squared)])
-    f.close()
+    # STORE THE MATRICES IN A FILE
+    filename = "wavefunction.txt"
+    print("\nExporting Wave Function to File", filename)
+    export_mat(wf, filename=filename)
+    filename = "wavefunction_modulus_squared.txt"
+    print("Exporting Wave Function Modulus Squared to File", filename)
+    export_mat(wf_modulus_squared, filename=filename)
+
+    # INTEGRATE
+    print("")
+    export_integral(wf_modulus_squared)
+
+    return wf_modulus_squared
+
+def main_from_files():
+    # IMPORT WAVEFUNCTION MATRIX FROM .TXT
+    #wf = import_wavefunction_mat()
+
+    # IMPORT MATRIX OF THE MODULUS SQUARED FROM .TXT
+    wf_modulus_squared = import_wavefunction_modulus_mat()
+
+    # INTEGRATE
+    export_integral(wf_modulus_squared)
+
+    return wf_modulus_squared
+
+
+
+# MAIN FUNCTION
+if __name__=="__main__":
+    print("1. Calculate the wave function from scratch using the initial parameters from file initial_parameters.py")
+    print("2. Plot the wave function from the file wavefunction.txt")
+    choice = input("Enter your choice: ")
+    if choice == "1":
+        wf_modulus_squared = main_from_scratch()
+    elif choice == "2":
+        wf_modulus_squared = main_from_files()
+    else:
+        print("Invalid Choice")
+        exit()
 
     # PLOT THE FIGURE
+    x = [ x_min + k*Dx for k in range(M) ]
     fig, ax = plt.subplots()
     ani = FuncAnimation(fig, animate, frames=int(N/10), interval=Dt/10, repeat=False)
-
     plt.show()
-
-    
