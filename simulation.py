@@ -1,7 +1,10 @@
 import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation
+from matplotlib.animation import FuncAnimation, FFMpegWriter
 from quantumpython import *
 from initial_parameters import *
+import os
+from itertools import cycle
+
 
 # POTENTIAL FUNCTION
 def V(x):
@@ -153,6 +156,32 @@ def main_from_files():
     return wf_modulus_squared
 
 
+# PLOT ONLY CERTAIN TIMES TOGETHER IN ONE FIGURE
+def plot_times(wf_mod_sq, times):
+    x = [ x_min + k*Dx for k in range(M) ]
+    fig, ax = plt.subplots()
+    handles = []
+
+    cycol = cycle('bgrcmk')
+    for t in times:
+        y = wf_mod_sq[:,t]
+        ax.plot(x, y, c=next(cycol), alpha=0.5)
+        handles.append(str(t) + "Δt")
+
+    ax.axvspan(0, l, alpha=0.5, color='black')
+    ax.axvspan(0, l, alpha=0.5, color='black')
+    ax.set_xlim([-25,10])
+    ax.set_ylim([0,0.5])
+    ax.legend(handles)
+    figManager = plt.get_current_fig_manager()
+    figManager.window.showMaximized()
+
+    plt.savefig('figure.pdf', bbox_inches='tight')
+    f = os.path.dirname(os.path.realpath(__file__)) + "/figure.pdf"
+    print("Saved animation to", f)
+
+    plt.show()
+
 
 # MAIN FUNCTION
 if __name__=="__main__":
@@ -167,8 +196,26 @@ if __name__=="__main__":
         print("Invalid Choice")
         exit()
 
-    # PLOT THE FIGURE
-    x = [ x_min + k*Dx for k in range(M) ]
-    fig, ax = plt.subplots()
-    ani = FuncAnimation(fig, animate, frames=int(N/10), interval=Dt/10, repeat=False)
-    plt.show()
+    choice = input("Finished Computations, would you like to make an animation of the evolution of the wavefunction in time? [Y/n] ")
+    if choice.lower() == "y" or choice.lower() == "yes":
+        # PLOT THE FIGURE
+        x = [ x_min + k*Dx for k in range(M) ]
+        fig, ax = plt.subplots()
+        ani = FuncAnimation(fig, animate, frames=int(N/10), interval=Dt/10, repeat=False)
+        
+        figManager = plt.get_current_fig_manager()
+        figManager.window.showMaximized()
+
+        plt.show()
+
+        choice = input("Do you want to save the animation as an .mp4? [Y/n] ")
+        if choice.lower() == "y" or choice.lower() == "yes":       
+            f = os.path.dirname(os.path.realpath(__file__)) + "/animation.mp4"
+            print("Saving animation to", f)
+            writervideo = FFMpegWriter(fps=60, bitrate=-1) 
+            ani.save(f, writer=writervideo)
+            print("Done")
+    
+
+
+    plot_times(wf_modulus_squared, [0, 500, 1000, 1500, 2000])
