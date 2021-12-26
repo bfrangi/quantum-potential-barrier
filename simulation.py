@@ -70,6 +70,8 @@ def animate(i):
     ax.fill_between(x, y, alpha=0.5, color='blue')
     ax.set_xlim([-60,60])
     ax.set_ylim([0,0.5])
+    plt.xlabel("Position")
+    plt.ylabel("Squared Wavefunction Modulus")
 
 # MAIN FUNCTIONS
 def main_from_scratch():
@@ -155,7 +157,6 @@ def main_from_files():
 
     return wf_modulus_squared
 
-
 # PLOT ONLY CERTAIN TIMES TOGETHER IN ONE FIGURE
 def plot_times(wf_mod_sq, times):
     x = [ x_min + k*Dx for k in range(M) ]
@@ -173,6 +174,9 @@ def plot_times(wf_mod_sq, times):
     ax.set_xlim([-25,10])
     ax.set_ylim([0,0.5])
     ax.legend(handles)
+    plt.xlabel("Position")
+    plt.ylabel("Squared Wavefunction Modulus")
+
     figManager = plt.get_current_fig_manager()
     figManager.window.showMaximized()
 
@@ -188,6 +192,7 @@ if __name__=="__main__":
     print("1. Calculate the wave function from scratch using the initial parameters from file initial_parameters.py")
     print("2. Plot the wave function from the file wavefunction.txt")
     choice = input("Enter your choice: ")
+    print("")
     if choice == "1":
         wf_modulus_squared = main_from_scratch()
     elif choice == "2":
@@ -196,8 +201,12 @@ if __name__=="__main__":
         print("Invalid Choice")
         exit()
 
-    choice = input("Finished Computations, would you like to make an animation of the evolution of the wavefunction in time? [Y/n] ")
-    if choice.lower() == "y" or choice.lower() == "yes":
+    print("\nFinished Computations. Choose an option:")
+    print("1. Create animation of the evolution of the wave function in time")
+    print("2. Plot the wave function for 0Δt, 500Δt, 1000Δt, 1500Δt and 2000Δt ")
+    print("3. Compute probability of finding the electron beyond the barrier as a function of time")
+    choice = input("Enter choice: ")
+    if choice == "1":
         # PLOT THE FIGURE
         x = [ x_min + k*Dx for k in range(M) ]
         fig, ax = plt.subplots()
@@ -215,7 +224,36 @@ if __name__=="__main__":
             writervideo = FFMpegWriter(fps=60, bitrate=-1) 
             ani.save(f, writer=writervideo)
             print("Done")
-    
+    elif choice == "2":
+        plot_times(wf_modulus_squared, [0, 500, 1000, 1500, 2000])
+    elif choice == "3":
+        print("Probability of Transmission")
+        integral_list = []
+        i = int((l-x_min)/Dx)
+        for time in pbar4(range(N)):
+            integral = 0
+            for position in range(i, M):
+                if position == i or position == M - 1:
+                    integral += 0.5 * wf_modulus_squared[position, time] * Dx
+                else:
+                    integral += wf_modulus_squared[position, time] * Dx
+            integral_list.append(integral)
 
+        t = [ k*Dt for k in range(N) ]
+        fig, ax = plt.subplots()
+        plt.axhline(y=integral_list[-1], color='black', linestyle='dashed', label=f"T = {integral_list[-1]}")
+        ax.plot(t, integral_list, c='blue', alpha=0.5)
+        ax.legend([f"T = {integral_list[-1]}"])
+        ax.set_xlim([0,Dt * N])
+        ax.set_ylim([0,None])
+        plt.xlabel("Time")
+        plt.ylabel("Transmission Probability")
 
-    plot_times(wf_modulus_squared, [0, 500, 1000, 1500, 2000])
+        figManager = plt.get_current_fig_manager()
+        figManager.window.showMaximized()
+
+        plt.savefig('probability_of_transmission.pdf', bbox_inches='tight')
+        f = os.path.dirname(os.path.realpath(__file__)) + "/probability_of_transmission.pdf"
+        print("Saved figure to", f)
+
+        plt.show()

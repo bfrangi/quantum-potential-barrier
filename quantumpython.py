@@ -6,6 +6,7 @@ widgets = ['Computing:', Percentage(), ' ', AnimatedMarker(markers='-\|/'),' ', 
 pbar1 = ProgressBar(widgets=widgets, maxval=10000000)
 pbar2 = ProgressBar(widgets=widgets, maxval=10000000)
 pbar3 = ProgressBar(widgets=widgets, maxval=10000000)
+pbar4 = ProgressBar(widgets=widgets, maxval=10000000)
 
 # MATHEMATICAL CONSTANTS
 e = np.exp(1) #Constant e
