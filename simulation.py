@@ -37,7 +37,8 @@ def phi_0(x):
 def modulus_squared(mat):
     print("Modulus Squared of the Wave Function")
     mod_sq = np.zeros([M, N])
-    for row in pbar2(range(M)):
+    progressbar = ProgressBar(widgets=widgets, maxval=10000000)
+    for row in progressbar(range(M)):
         for col in range(N):
             mod_sq[row, col] = np.absolute(mat[row, col])**2
     return mod_sq
@@ -46,7 +47,8 @@ def modulus_squared(mat):
 def integral_modulus_squared(mod_sq):
     print("Integral of the Modulus Squared of the Wave Function")
     integral_list = []
-    for col in pbar3(range(N)):
+    progressbar = ProgressBar(widgets=widgets, maxval=10000000)
+    for col in progressbar(range(N)):
         integral = 0
         for row in range(M):
             if row == 0 or row == M - 1:
@@ -74,7 +76,7 @@ def animate(i):
     plt.ylabel("Squared Wavefunction Modulus")
 
 # MAIN FUNCTIONS
-def main_from_scratch():
+def main_from_scratch(export_and_integrate=True):
     # CREATE SPACE AND TIME VECTORS AND WAVE FUNCTION MATRIX
     x, t = generate_x_and_t(M, Dx, x_min, N, Dt)#create the space and time vectors
     wf = np.zeros([M, N], dtype='complex')# Create a matrix to store the wave function accross space (rows) and time (columns)
@@ -115,7 +117,8 @@ def main_from_scratch():
             s_prime[i] = ( s(i) - a * s_prime[i - 1] ) / ( d(i) - a * a_prime[i - 1] )
 
     s_prime = np.zeros([M,1], dtype='complex')
-    for t in pbar1(range(N - 1)):# iterate over time
+    progressbar = ProgressBar(widgets=widgets, maxval=10000000)
+    for t in progressbar(range(N - 1)):# iterate over time
         S = np.matmul(R, wf[:,t])
         for i in range(M):
             if i == 0:
@@ -132,16 +135,17 @@ def main_from_scratch():
     wf_modulus_squared = modulus_squared(wf)
 
     # STORE THE MATRICES IN A FILE
-    filename = "wavefunction.txt"
-    print("\nExporting Wave Function to File", filename)
-    export_mat(wf, filename=filename)
-    filename = "wavefunction_modulus_squared.txt"
-    print("Exporting Wave Function Modulus Squared to File", filename)
-    export_mat(wf_modulus_squared, filename=filename)
+    if export_and_integrate:    
+        filename = "wavefunction.txt"
+        print("\nExporting Wave Function to File", filename)
+        export_mat(wf, filename=filename)
+        filename = "wavefunction_modulus_squared.txt"
+        print("Exporting Wave Function Modulus Squared to File", filename)
+        export_mat(wf_modulus_squared, filename=filename)
 
-    # INTEGRATE
-    print("")
-    export_integral(wf_modulus_squared)
+        # INTEGRATE
+        print("")
+        export_integral(wf_modulus_squared)
 
     return wf_modulus_squared
 
@@ -186,27 +190,54 @@ def plot_times(wf_mod_sq, times):
 
     plt.show()
 
+# CALCULATE PROBABILITY OF TRANSMISSION
+def transmission_prob(wf_prob):
+    print("Probability of Transmission")
+    integral_list = []
+    i = int((l-x_min)/Dx)
+    progressbar = ProgressBar(widgets=widgets, maxval=10000000)
+    for time in progressbar(range(N)):
+        integral = 0
+        for position in range(i, M):
+            if position == i or position == M - 1:
+                integral += 0.5 * wf_prob[position, time] * Dx
+            else:
+                integral += wf_prob[position, time] * Dx
+        integral_list.append(integral)
+    return integral_list
+
 
 # MAIN FUNCTION
 if __name__=="__main__":
-    print("1. Calculate the wave function from scratch using the initial parameters from file initial_parameters.py")
-    print("2. Plot the wave function from the file wavefunction.txt")
-    choice = input("Enter your choice: ")
-    print("")
+    print(f"{bcolors.BOLD}1. Compute the wave function from scratch using the initial parameters from file initial_parameters.py")
+    print("2. Import the wave function from the file wavefunction.txt")
+    print(f"3. Skip {bcolors.WARNING}(by skipping this step, some of the functions of the program are made unavailable){bcolors.ENDC}")
+    choice = input(f"Enter your choice:{bcolors.OKGREEN} ")
+    print(f"{bcolors.ENDC}")
+    skipped = False
     if choice == "1":
         wf_modulus_squared = main_from_scratch()
     elif choice == "2":
         wf_modulus_squared = main_from_files()
+    elif choice == "3":
+        skipped = True
     else:
-        print("Invalid Choice")
+        print(f"{bcolors.FAIL}Invalid Choice{bcolors.ENDC}")
         exit()
 
-    print("\nFinished Computations. Choose an option:")
-    print("1. Create animation of the evolution of the wave function in time")
+    if skipped:
+        print("Choose an option:")
+        print(f"{bcolors.WARNING}WARNING: You have skipped computing/importing the wave function, so options 1, 2, and 3 are not available.{bcolors.ENDC}")
+    else:
+        print(f"\n{bcolors.OKCYAN}Finished Computations.{bcolors.ENDC} Choose an option:")
+
+    print(f"{bcolors.BOLD}1. Create animation of the evolution of the wave function in time")
     print("2. Plot the wave function for 0Δt, 500Δt, 1000Δt, 1500Δt and 2000Δt ")
     print("3. Compute probability of finding the electron beyond the barrier as a function of time")
-    choice = input("Enter choice: ")
-    if choice == "1":
+    print(f"4. Compute probability of finding the electron beyond the barrier for different values of", f"k0".translate(SUB) + f"{bcolors.ENDC}")
+    choice = input(f"Enter choice:{bcolors.OKGREEN} ")
+    print(f"{bcolors.ENDC}")
+    if not skipped and choice == "1":
         # PLOT THE FIGURE
         x = [ x_min + k*Dx for k in range(M) ]
         fig, ax = plt.subplots()
@@ -224,26 +255,16 @@ if __name__=="__main__":
             writervideo = FFMpegWriter(fps=60, bitrate=-1) 
             ani.save(f, writer=writervideo)
             print("Done")
-    elif choice == "2":
+    elif not skipped and choice == "2":
         plot_times(wf_modulus_squared, [0, 500, 1000, 1500, 2000])
-    elif choice == "3":
-        print("Probability of Transmission")
-        integral_list = []
-        i = int((l-x_min)/Dx)
-        for time in pbar4(range(N)):
-            integral = 0
-            for position in range(i, M):
-                if position == i or position == M - 1:
-                    integral += 0.5 * wf_modulus_squared[position, time] * Dx
-                else:
-                    integral += wf_modulus_squared[position, time] * Dx
-            integral_list.append(integral)
+    elif not skipped and choice == "3":
+        integral_list = transmission_prob(wf_modulus_squared)
 
         t = [ k*Dt for k in range(N) ]
         fig, ax = plt.subplots()
         plt.axhline(y=integral_list[-1], color='black', linestyle='dashed', label=f"T = {integral_list[-1]}")
         ax.plot(t, integral_list, c='blue', alpha=0.5)
-        ax.legend([f"T = {integral_list[-1]}"])
+        ax.legend([f"T = {round(integral_list[-1], 4)}"])
         ax.set_xlim([0,Dt * N])
         ax.set_ylim([0,None])
         plt.xlabel("Time")
@@ -257,3 +278,47 @@ if __name__=="__main__":
         print("Saved figure to", f)
 
         plt.show()
+    elif choice == "4":
+        k_0_list = [0.5, 0.75, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 7, 8]
+        transmission_probability_functions = []
+        for i in k_0_list:
+            k_0 = i
+            print(f"{bcolors.UNDERLINE}Making Calculations for:{bcolors.ENDC}{bcolors.OKBLUE}", "K0 =".translate(SUB), str(k_0) + f"{bcolors.ENDC}")
+            wf_modulus_squared = main_from_scratch(export_and_integrate=False)
+            transmission_probability_functions.append(transmission_prob(wf_modulus_squared))
+            print("")
+
+        t = [ k*Dt for k in range(N) ]
+        fig, ax = plt.subplots()
+        handlers = []
+
+        cycol = cycle('bgrcmk')
+        for i in range(len(transmission_probability_functions)):
+            ax.plot(t, transmission_probability_functions[i], c=next(cycol), alpha=0.5)
+            handlers.append("k0 = ".translate(SUB) + str(k_0_list[i]))            
+
+        
+        ax.legend(handlers)
+        
+        ax.set_xlim([0,Dt * N])
+        ax.set_ylim([10e-6,None])
+        plt.xlabel("Time")
+        plt.ylabel("Transmission Probability")
+        plt.yscale("log")
+
+        figManager = plt.get_current_fig_manager()
+        figManager.window.showMaximized()
+
+        plt.savefig('probability_of_transmission_comparison.pdf', bbox_inches='tight')
+        f = os.path.dirname(os.path.realpath(__file__)) + "/probability_of_transmission_comparison.pdf"
+        print("Saved figure to", f)
+
+        plt.show()
+        choice = input("Do you want to study the dependence of the (asymptotic) transmission probability on the energy E0 choice? [Y/n]".translate(SUB) + f" {bcolors.OKGREEN}")
+        print(f"{bcolors.ENDC}")
+        if choice.lower() in ["yes", "y"]:
+            pass
+        else:
+            print(f"{bcolors.FAIL}Invalid Choice{bcolors.ENDC}")
+    else:
+        print(f"{bcolors.FAIL}Invalid Choice{bcolors.ENDC}")

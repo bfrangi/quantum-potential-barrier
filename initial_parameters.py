@@ -11,8 +11,8 @@ l = 2 #Width of the potential barrier (positive)
 V_0 = 2 #Height of the potential barrier (Potential is normalized as V = V_real/E_h)
 m = 1 #Mass of the particle (Mass is normalized with: m = m_real/m_e) ---> m = 1 is fixed!!
 
-N = 5000 #Total values of time (Time is normalized with: t = t_real · E_h/h_bar)
-Dt = 0.005 #Time interval 
+N = 500 #Total values of time (Time is normalized with: t = t_real · E_h/h_bar)
+Dt = 0.05 #Time interval 
 t = N * Dt #Total time 
 
 #Note also that energy is normalized as E = E_real/E_h 

@@ -3,10 +3,6 @@ import numpy as np
 from numpy import pi
 from progressbar import AnimatedMarker, Bar, ETA, FileTransferSpeed, Percentage, ProgressBar
 widgets = ['Computing:', Percentage(), ' ', AnimatedMarker(markers='-\|/'),' ', Bar('█'), ' ', ETA(), ' ', FileTransferSpeed(unit="it")]
-pbar1 = ProgressBar(widgets=widgets, maxval=10000000)
-pbar2 = ProgressBar(widgets=widgets, maxval=10000000)
-pbar3 = ProgressBar(widgets=widgets, maxval=10000000)
-pbar4 = ProgressBar(widgets=widgets, maxval=10000000)
 
 # MATHEMATICAL CONSTANTS
 e = np.exp(1) #Constant e
@@ -20,8 +16,23 @@ q_e = 1.6*10**(-19) #Elementary charge
 a_0 = 4 * pi * epsilon_0 * h_bar**2 / ( m_e * q_e**2 ) #Bohr's Radius
 E_h = h_bar**2/ ( m_e * a_0**2 ) 
 
+# TEXT COLORS
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
 
-# IMPORT WAVEFUNCTION MATRIX FROM .TXT
+# SUBSCRIPTS AND SUPERSCRIPTS
+SUB = str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉")
+SUP = str.maketrans("0123456789", "⁰¹²³⁴⁵⁶⁷⁸⁹")
+
+# IMPORT WAVE FUNCTION MATRIX FROM .TXT
 def import_wavefunction_mat(filename="wavefunction.txt"):
     f = open(filename, 'r')
     lines = f.readlines()
@@ -32,7 +43,7 @@ def import_wavefunction_mat(filename="wavefunction.txt"):
     
     mat = np.zeros([rows, columns], dtype='complex')
     
-    print("Importing Wavefunction Matrix from File", filename)
+    print("Importing Wave Function Matrix from File", filename)
     progressbar = ProgressBar(widgets=widgets, maxval=10000000)
     for column in progressbar(range(columns)):
         col = lines[column].strip().split("\t")
@@ -63,7 +74,7 @@ def import_wavefunction_modulus_mat(filename="wavefunction_modulus_squared.txt")
 
     mat = np.zeros([rows, columns])
 
-    print("Importing Wavefunction Modulus Squared Matrix from File", filename)
+    print("Importing Wave Function Modulus Squared Matrix from File", filename)
     progressbar = ProgressBar(widgets=widgets, maxval=10000000)
     for column in progressbar(range(columns)):
         col = lines[column].strip().split("\t")
