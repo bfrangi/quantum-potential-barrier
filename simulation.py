@@ -184,9 +184,9 @@ def plot_times(wf_mod_sq, times):
     figManager = plt.get_current_fig_manager()
     figManager.window.showMaximized()
 
-    plt.savefig('figure.pdf', bbox_inches='tight')
-    f = os.path.dirname(os.path.realpath(__file__)) + "/figure.pdf"
-    print("Saved animation to", f)
+    plt.savefig('Output-Media/wavefunction_for_given_times.pdf', bbox_inches='tight')
+    f = os.path.dirname(os.path.realpath(__file__)) + "/Output-Media/wavefunction_for_given_times.pdf"
+    print("Saved figure to", f)
 
     plt.show()
 
@@ -199,13 +199,43 @@ def transmission_prob(wf_prob):
     for time in progressbar(range(N)):
         integral = 0
         for position in range(i, M):
-            if position == i or position == M - 1:
-                integral += 0.5 * wf_prob[position, time] * Dx
-            else:
-                integral += wf_prob[position, time] * Dx
+            if position in [i, M - 1]: mult = 0.5
+            else: mult = 1
+            integral += mult * wf_prob[position, time] * Dx
         integral_list.append(integral)
     return integral_list
 
+# PLOT TRANSMISSION COEFFICIENT AS A FUNCTION OF ENERGY
+def plot_T_vs_E(E, T):
+    fig, ax = plt.subplots()
+    handles = ["Simulated Transmission Coefficient", "Theoretical Transmission Coefficient"]
+    ax.plot(E, T, c='orange', alpha=0.5)
+    DE = ( max(E) - min(E) ) / 10000
+    E_list = [ i * DE for i in range(10000) if i > 0 ]
+    T_list = [ T_theory(i) for i in E_list ]
+
+    ax.plot(E_list, T_list, c='blue', alpha=0.5)
+    ax.legend(handles)
+    plt.xlabel("Energy (E0)".translate(SUB))
+    plt.ylabel("Transmission Coefficient (T)")
+    figManager = plt.get_current_fig_manager()
+    figManager.window.showMaximized()
+
+    plt.savefig('Output-Media/transmission_coefficient_vs_energy.pdf', bbox_inches='tight')
+    f = os.path.dirname(os.path.realpath(__file__)) + "/Output-Media/transmission_coefficient_vs_energy.pdf"
+    print("Saved figure to", f)
+
+    plt.show()
+
+# DETECT HORIZONTAL ASYMPTOTE APPROACHED FROM BELOW
+def detect_asympote(values):
+    return [ values[i] for i in range(len(values)) if values[i] >= values[min(0, i - 1)] ][-1]# find the last value of the increasing part of the function
+
+# THEORETICAL TRANSMISSION COEFFICIENT AS A FUNCTION OF THE ENERGY
+def T_theory(E):
+    if E == V_0: return None
+    elif E < V_0: return ( 1 + V_0**2 / ( 4 * E * ( V_0 - E ) ) * np.sinh( l * np.sqrt( 2 * ( V_0 - E ) ) )**2 )**(-1)
+    else: return ( 1 + V_0**2 / ( 4 * E * ( E - V_0 ) ) * np.sin( l * np.sqrt( 2 * ( E - V_0 ) ) )**2 )**(-1)
 
 # MAIN FUNCTION
 if __name__=="__main__":
@@ -215,12 +245,9 @@ if __name__=="__main__":
     choice = input(f"Enter your choice:{bcolors.OKGREEN} ")
     print(f"{bcolors.ENDC}")
     skipped = False
-    if choice == "1":
-        wf_modulus_squared = main_from_scratch()
-    elif choice == "2":
-        wf_modulus_squared = main_from_files()
-    elif choice == "3":
-        skipped = True
+    if choice == "1": wf_modulus_squared = main_from_scratch()
+    elif choice == "2": wf_modulus_squared = main_from_files()
+    elif choice == "3": skipped = True
     else:
         print(f"{bcolors.FAIL}Invalid Choice{bcolors.ENDC}")
         exit()
@@ -228,7 +255,7 @@ if __name__=="__main__":
     if skipped:
         print("Choose an option:")
         print(f"{bcolors.WARNING}WARNING: You have skipped computing/importing the wave function, so options 1, 2, and 3 are not available.{bcolors.ENDC}")
-    else:
+    else: 
         print(f"\n{bcolors.OKCYAN}Finished Computations.{bcolors.ENDC} Choose an option:")
 
     print(f"{bcolors.BOLD}1. Create animation of the evolution of the wave function in time")
@@ -250,7 +277,7 @@ if __name__=="__main__":
 
         choice = input("Do you want to save the animation as an .mp4? [Y/n] ")
         if choice.lower() == "y" or choice.lower() == "yes":       
-            f = os.path.dirname(os.path.realpath(__file__)) + "/animation.mp4"
+            f = os.path.dirname(os.path.realpath(__file__)) + "/Output-Media/animation.mp4"
             print("Saving animation to", f)
             writervideo = FFMpegWriter(fps=60, bitrate=-1) 
             ani.save(f, writer=writervideo)
@@ -273,13 +300,13 @@ if __name__=="__main__":
         figManager = plt.get_current_fig_manager()
         figManager.window.showMaximized()
 
-        plt.savefig('probability_of_transmission.pdf', bbox_inches='tight')
-        f = os.path.dirname(os.path.realpath(__file__)) + "/probability_of_transmission.pdf"
+        plt.savefig('Output-Media/probability_of_transmission.pdf', bbox_inches='tight')
+        f = os.path.dirname(os.path.realpath(__file__)) + "/Output-Media/probability_of_transmission.pdf"
         print("Saved figure to", f)
 
         plt.show()
     elif choice == "4":
-        k_0_list = [0.5, 0.75, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 7, 8]
+        k_0_list = [0.5, 0.75, 1, 1.5, 2, 2.5, 3, 3.5, 4]#, 4.5, 5, 5.5, 6, 7, 8]
         transmission_probability_functions = []
         for i in k_0_list:
             k_0 = i
@@ -288,7 +315,7 @@ if __name__=="__main__":
             transmission_probability_functions.append(transmission_prob(wf_modulus_squared))
             print("")
 
-        t = [ k*Dt for k in range(N) ]
+        t = [ num*Dt for num in range(N) ]
         fig, ax = plt.subplots()
         handlers = []
 
@@ -309,16 +336,18 @@ if __name__=="__main__":
         figManager = plt.get_current_fig_manager()
         figManager.window.showMaximized()
 
-        plt.savefig('probability_of_transmission_comparison.pdf', bbox_inches='tight')
-        f = os.path.dirname(os.path.realpath(__file__)) + "/probability_of_transmission_comparison.pdf"
+        plt.savefig('Output-Media/probability_of_transmission_comparison.pdf', bbox_inches='tight')
+        f = os.path.dirname(os.path.realpath(__file__)) + "/Output-Media/probability_of_transmission_comparison.pdf"
         print("Saved figure to", f)
 
         plt.show()
         choice = input("Do you want to study the dependence of the (asymptotic) transmission probability on the energy E0 choice? [Y/n]".translate(SUB) + f" {bcolors.OKGREEN}")
         print(f"{bcolors.ENDC}")
         if choice.lower() in ["yes", "y"]:
-            pass
-        else:
+            E_0_list = [ ( k**2 + 1 / ( 2 * sigma_0**2 ) ) / 2 for k in k_0_list ]
+            asymptotic_T = [ detect_asympote(integral_list) for integral_list in transmission_probability_functions ] 
+            plot_T_vs_E(E_0_list, asymptotic_T)
+        elif choice.lower() not in ["no", "n"]:
             print(f"{bcolors.FAIL}Invalid Choice{bcolors.ENDC}")
     else:
         print(f"{bcolors.FAIL}Invalid Choice{bcolors.ENDC}")
