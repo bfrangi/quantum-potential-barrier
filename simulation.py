@@ -229,7 +229,10 @@ def plot_T_vs_E(E, T):
 
 # DETECT HORIZONTAL ASYMPTOTE APPROACHED FROM BELOW
 def detect_asympote(values):
-    return [ values[i] for i in range(len(values)) if values[i] >= values[min(0, i - 1)] ][-1]# find the last value of the increasing part of the function
+    asymptote = 0
+    for value in values:
+        asymptote = max(asymptote, value)
+    return asymptote#[ values[i] for i in range(len(values)) if values[i] >= values[max(0, i - 1)] ][-1]# find the last value of the increasing part of the function
 
 # THEORETICAL TRANSMISSION COEFFICIENT AS A FUNCTION OF THE ENERGY
 def T_theory(E):
@@ -318,11 +321,16 @@ if __name__=="__main__":
         t = [ num*Dt for num in range(N) ]
         fig, ax = plt.subplots()
         handlers = []
+        asymptotic_T = [ detect_asympote(integral_list) for integral_list in transmission_probability_functions ] 
+
 
         cycol = cycle('bgrcmk')
         for i in range(len(transmission_probability_functions)):
-            ax.plot(t, transmission_probability_functions[i], c=next(cycol), alpha=0.5)
-            handlers.append("k0 = ".translate(SUB) + str(k_0_list[i]))            
+            col = next(cycol)
+            ax.plot(t, transmission_probability_functions[i], c=col, alpha=0.5)
+            plt.axhline(y=asymptotic_T[i], color=col, linestyle='dashed')
+            handlers.append("k0 = ".translate(SUB) + str(k_0_list[i]))
+            handlers.append("T = " + str(round( asymptotic_T[i] ,4)))         
 
         
         ax.legend(handlers)
