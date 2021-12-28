@@ -309,7 +309,7 @@ if __name__=="__main__":
 
         plt.show()
     elif choice == "4":
-        k_0_list = [0.5, 0.75, 1, 1.5, 2, 2.5, 3, 3.5, 4]#, 4.5, 5, 5.5, 6, 7, 8]
+        k_0_list = [0.5, 0.75, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 7, 8]
         transmission_probability_functions = []
         for i in k_0_list:
             k_0 = i
@@ -321,16 +321,16 @@ if __name__=="__main__":
         t = [ num*Dt for num in range(N) ]
         fig, ax = plt.subplots()
         handlers = []
-        asymptotic_T = [ detect_asympote(integral_list) for integral_list in transmission_probability_functions ] 
+        #asymptotic_T = [ detect_asympote(integral_list) for integral_list in transmission_probability_functions ] 
 
 
         cycol = cycle('bgrcmk')
         for i in range(len(transmission_probability_functions)):
             col = next(cycol)
             ax.plot(t, transmission_probability_functions[i], c=col, alpha=0.5)
-            plt.axhline(y=asymptotic_T[i], color=col, linestyle='dashed')
+            #plt.axhline(y=asymptotic_T[i], color=col, linestyle='dashed')
             handlers.append("k0 = ".translate(SUB) + str(k_0_list[i]))
-            handlers.append("T = " + str(round( asymptotic_T[i] ,4)))         
+            #handlers.append("T = " + str(round( asymptotic_T[i] ,4)))         
 
         
         ax.legend(handlers)
