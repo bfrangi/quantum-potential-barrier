@@ -232,7 +232,7 @@ def detect_asympote(values):
     asymptote = 0
     for value in values:
         asymptote = max(asymptote, value)
-    return asymptote#[ values[i] for i in range(len(values)) if values[i] >= values[max(0, i - 1)] ][-1]# find the last value of the increasing part of the function
+    return asymptote
 
 # THEORETICAL TRANSMISSION COEFFICIENT AS A FUNCTION OF THE ENERGY
 def T_theory(E):
@@ -242,6 +242,25 @@ def T_theory(E):
 
 # MAIN FUNCTION
 if __name__=="__main__":
+    N_custom = input(f"Enter the number of time points (press [enter] for default: N = {N}):{bcolors.OKGREEN} ")
+    print(f"{bcolors.ENDC}", end="")
+    if N_custom and not N_custom.isdigit():
+        print(f"{bcolors.FAIL}Invalid Input{bcolors.ENDC}")
+        exit()
+    else:
+        if N_custom:
+            N = int(N_custom)
+    Dt_custom = input(f"Enter the time step (press [enter] for default: Δt = {Dt}):{bcolors.OKGREEN} ")
+    if Dt_custom:
+        try:            
+            Dt_custom = float(Dt_custom)
+            Dt = Dt_custom
+        except:
+            print(f"{bcolors.FAIL}Invalid Input{bcolors.ENDC}")
+            exit()  
+    print(f"{bcolors.ENDC}")
+
+    
     print(f"{bcolors.BOLD}1. Compute the wave function from scratch using the initial parameters from file initial_parameters.py")
     print("2. Import the wave function from the file wavefunction.txt")
     print(f"3. Skip {bcolors.WARNING}(by skipping this step, some of the functions of the program are made unavailable){bcolors.ENDC}")
@@ -309,7 +328,7 @@ if __name__=="__main__":
 
         plt.show()
     elif choice == "4":
-        k_0_list = [0.5, 0.75, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 7, 8]
+        k_0_list = [2]#[0.5, 0.75, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 7, 8]
         transmission_probability_functions = []
         for i in k_0_list:
             k_0 = i
@@ -349,7 +368,7 @@ if __name__=="__main__":
         print("Saved figure to", f)
 
         plt.show()
-        choice = input("Do you want to study the dependence of the (asymptotic) transmission probability on the energy E0 choice? [Y/n]".translate(SUB) + f" {bcolors.OKGREEN}")
+        choice = input("Do you want to study the dependence of the (asymptotic) transmission probability on the energy E0? [Y/n]".translate(SUB) + f" {bcolors.OKGREEN}")
         print(f"{bcolors.ENDC}")
         if choice.lower() in ["yes", "y"]:
             E_0_list = [ ( k**2 + 1 / ( 2 * sigma_0**2 ) ) / 2 for k in k_0_list ]
