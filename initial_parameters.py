@@ -1,6 +1,6 @@
 # NORMALIZED VALUES OF THE PARAMETERS
 sigma_0 = 3                             #Spatial width of the wavefunction
-k_0 = 7.5                               #Constant that is proportional to the velocity of the packet
+k_0 = 1                                 #Constant that is proportional to the velocity of the packet
 x_0 = -10                               #Value around which the initial wave function is centered
 
 x_min = -60                             #Min value of x (Distance is normalized with: x = x_real/a_0)

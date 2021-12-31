@@ -243,8 +243,8 @@ def plot_T_vs_E(E, T):
     figManager = plt.get_current_fig_manager()
     figManager.window.showMaximized()
 
-    plt.savefig('Output-Media/transmission_coefficient_vs_energy.pdf', bbox_inches='tight')
-    f = os.path.dirname(os.path.realpath(__file__)) + "/Output-Media/transmission_coefficient_vs_energy.pdf"
+    plt.savefig('Output-Media/transmission_coefficient_vs_energy_sigma_' + re.sub(r'\.', r'\,', str(sigma_0)) + '.pdf', bbox_inches='tight')
+    f = os.path.dirname(os.path.realpath(__file__)) + "/Output-Media/transmission_coefficient_vs_energy_sigma_" + re.sub(r'\.', r'\,', str(sigma_0)) + ".pdf"
     print("Saved figure to", f)
 
     plt.show()
@@ -311,11 +311,13 @@ if __name__=="__main__":
     print(f"{bcolors.ENDC}")
     if not skipped and choice == "1":
         # PLOT THE FIGURE
-        choice = input("Do you want to plot the transmission probability along with the wavefunction? [Y/n] ")
-        if choice.lower() == "y" or choice.lower() == "yes":
+        plot_transmission = input("Do you want to plot the transmission probability along with the wavefunction? [Y/n] ")
+        if plot_transmission.lower() == "y" or plot_transmission.lower() == "yes":
             integral_list = transmission_prob(wf_modulus_squared)
+            plot_transmission = True
         else:
             integral_list = []
+            plot_transmission = False
 
         x = [ x_min + k*Dx for k in range(M) ]
         t = [ k*Dt for k in range(N) ]
@@ -332,12 +334,13 @@ if __name__=="__main__":
         plt.show()
 
 
-
-
-
         choice = input("Do you want to save the animation as an .mp4? [Y/n] ")
-        if choice.lower() == "y" or choice.lower() == "yes":       
-            f = os.path.dirname(os.path.realpath(__file__)) + "/Output-Media/animation.mp4"
+        if choice.lower() == "y" or choice.lower() == "yes":
+            if plot_transmission:
+                figure_filename = "animation_with_transmission.mp4"
+            else:
+                figure_filename = "animation.mp4"   
+            f = os.path.dirname(os.path.realpath(__file__)) + "/Output-Media/" + figure_filename
             print("Saving animation to", f)
             writervideo = FFMpegWriter(fps=60, bitrate=-1) 
             ani.save(f, writer=writervideo)
@@ -433,8 +436,8 @@ if __name__=="__main__":
         figManager = plt.get_current_fig_manager()
         figManager.window.showMaximized()
 
-        plt.savefig('Output-Media/probability_of_transmission_comparison.pdf', bbox_inches='tight')
-        f = os.path.dirname(os.path.realpath(__file__)) + "/Output-Media/probability_of_transmission_comparison.pdf"
+        plt.savefig('Output-Media/probability_of_transmission_comparison_sigma_' + re.sub(r'\.', r'\,', str(sigma_0)) + '.pdf', bbox_inches='tight')
+        f = os.path.dirname(os.path.realpath(__file__)) + "/Output-Media/probability_of_transmission_comparison_sigma_" + re.sub(r'\.', r'\,', str(sigma_0)) + ".pdf"
         print("Saved figure to", f)
 
         plt.show()
