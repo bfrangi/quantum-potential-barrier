@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation, FFMpegWriter
+from mpl_toolkits.axisartist.parasite_axes import HostAxes, ParasiteAxes
 from quantumpython import *
 from initial_parameters import *
 import os
@@ -60,20 +61,40 @@ def integral_modulus_squared(mod_sq):
 
 def export_integral(wf_modulus_squared):
     f = open("integral_of_the_modulus_squared.txt", 'w')
-    f.writelines([ str(integral) + "\n" for integral in integral_modulus_squared(wf_modulus_squared)])
+    integral_list = integral_modulus_squared(wf_modulus_squared)
+    f.writelines([ str(integral) + "\n" for integral in integral_list])
     f.close()
+    return integral_list
 
 # PLOT ANIMATION
 def animate(i):
     y = wf_modulus_squared[:,10*i]
-    ax.clear()
-    ax.axvspan(0, l, alpha=0.5, color='black')
-    ax.plot(x, y, color='blue', alpha=0.5)
-    ax.fill_between(x, y, alpha=0.5, color='blue')
-    ax.set_xlim([-60,60])
-    ax.set_ylim([0,0.5])
-    plt.xlabel("Position")
-    plt.ylabel("Squared Wavefunction Modulus")
+    #update main axes, where the modulus squared of the wave function is plotted
+    main_axes.clear()
+    main_axes.axvspan(0, l, alpha=0.5, color='black')
+    main_axes.plot(x, y, color='blue', alpha=0.5)
+    main_axes.fill_between(x, y, alpha=0.5, color='blue')
+    main_axes.set_xlim([-60,60])
+    main_axes.set_ylim([0,1])
+    main_axes.set_xlabel("Position")
+    main_axes.set_ylabel("Squared Wavefunction Modulus")
+    #update T_prob axes, where the transmission probability is plotted
+    if integral_list:
+        main_axes.axis["right"].set_visible(False)
+        main_axes.axis["top"].set_visible(False)
+        T_prob.clear()
+        T_prob.axis["right"].set_visible(True)
+        T_prob.axis["right"].major_ticklabels.set_visible(True)
+        T_prob.axis["right"].label.set_visible(True)
+        T_prob.axis["top"].set_visible(True)
+        T_prob.axis["top"].major_ticklabels.set_visible(True)
+        T_prob.axis["top"].label.set_visible(True)
+        T_prob.set_xlabel("Time")
+        T_prob.set_ylabel("Transmission Probability")
+        T_prob.set_yscale("log")
+        T_prob.set_ylim([1e-7, 2])
+        T_prob.set_xlim([0, N*Dt])
+        T_prob.plot(t[0:i*10], integral_list[0:i*10], color='black', alpha=0.5)
 
 # MAIN FUNCTIONS
 def main_from_scratch(export_and_integrate=True):
@@ -145,9 +166,10 @@ def main_from_scratch(export_and_integrate=True):
 
         # INTEGRATE
         print("")
-        export_integral(wf_modulus_squared)
-
-    return wf_modulus_squared
+        integral_list = export_integral(wf_modulus_squared)
+        return wf_modulus_squared, integral_list
+    else:
+        return wf_modulus_squared
 
 def main_from_files():
     # IMPORT WAVEFUNCTION MATRIX FROM .TXT
@@ -157,9 +179,9 @@ def main_from_files():
     wf_modulus_squared = import_wavefunction_modulus_mat()
 
     # INTEGRATE
-    export_integral(wf_modulus_squared)
+    integral_list = export_integral(wf_modulus_squared)
 
-    return wf_modulus_squared
+    return wf_modulus_squared, integral_list
 
 # PLOT ONLY CERTAIN TIMES TOGETHER IN ONE FIGURE
 def plot_times(wf_mod_sq, times):
@@ -261,14 +283,14 @@ if __name__=="__main__":
     print(f"{bcolors.ENDC}")
 
     
-    print(f"{bcolors.BOLD}1. Compute the wave function from scratch using the initial parameters from file initial_parameters.py")
+    print(f"{bcolors.BOLD}1. Compute the wave function from scratch using the initial parameters from file initial_parameters.py (if you have chosen non-default N and Δt, those values will be used)")
     print("2. Import the wave function from the file wavefunction.txt")
     print(f"3. Skip {bcolors.WARNING}(by skipping this step, some of the functions of the program are made unavailable){bcolors.ENDC}")
     choice = input(f"Enter your choice:{bcolors.OKGREEN} ")
     print(f"{bcolors.ENDC}")
     skipped = False
-    if choice == "1": wf_modulus_squared = main_from_scratch()
-    elif choice == "2": wf_modulus_squared = main_from_files()
+    if choice == "1": wf_modulus_squared, integral_list = main_from_scratch()
+    elif choice == "2": wf_modulus_squared, integral_list = main_from_files()
     elif choice == "3": skipped = True
     else:
         print(f"{bcolors.FAIL}Invalid Choice{bcolors.ENDC}")
@@ -276,26 +298,42 @@ if __name__=="__main__":
 
     if skipped:
         print("Choose an option:")
-        print(f"{bcolors.WARNING}WARNING: You have skipped computing/importing the wave function, so options 1, 2, and 3 are not available.{bcolors.ENDC}")
+        print(f"{bcolors.WARNING}WARNING: You have skipped computing/importing the wave function, so options 1, 2, 3 and 4 are not available.{bcolors.ENDC}")
     else: 
         print(f"\n{bcolors.OKCYAN}Finished Computations.{bcolors.ENDC} Choose an option:")
 
     print(f"{bcolors.BOLD}1. Create animation of the evolution of the wave function in time")
     print("2. Plot the wave function for 0Δt, 500Δt, 1000Δt, 1500Δt and 2000Δt ")
-    print("3. Compute probability of finding the electron beyond the barrier as a function of time")
-    print(f"4. Compute probability of finding the electron beyond the barrier for different values of", f"k0".translate(SUB) + f"{bcolors.ENDC}")
+    print("3. Analyse the accuracy of the method")
+    print("4. Compute probability of finding the electron beyond the barrier as a function of time")
+    print(f"5. Compute probability of finding the electron beyond the barrier for different values of", f"k0".translate(SUB) + f"{bcolors.ENDC}")
     choice = input(f"Enter choice:{bcolors.OKGREEN} ")
     print(f"{bcolors.ENDC}")
     if not skipped and choice == "1":
         # PLOT THE FIGURE
+        choice = input("Do you want to plot the transmission probability along with the wavefunction? [Y/n] ")
+        if choice.lower() == "y" or choice.lower() == "yes":
+            integral_list = transmission_prob(wf_modulus_squared)
+        else:
+            integral_list = []
+
         x = [ x_min + k*Dx for k in range(M) ]
-        fig, ax = plt.subplots()
-        ani = FuncAnimation(fig, animate, frames=int(N/10), interval=Dt/10, repeat=False)
+        t = [ k*Dt for k in range(N) ]
+        fig = plt.figure()
+
+        main_axes = fig.add_axes([0.15, 0.1, 0.65, 0.8], axes_class=HostAxes)
+        T_prob = ParasiteAxes(main_axes)
+        main_axes.parasites.append(T_prob)
+        ani = FuncAnimation(fig, animate, frames=int(N/10), interval=Dt*k_0, repeat=False)#the interval is Dt*k_0 to avoid very fast and very slow animations when exporting
         
         figManager = plt.get_current_fig_manager()
         figManager.window.showMaximized()
 
         plt.show()
+
+
+
+
 
         choice = input("Do you want to save the animation as an .mp4? [Y/n] ")
         if choice.lower() == "y" or choice.lower() == "yes":       
@@ -305,8 +343,18 @@ if __name__=="__main__":
             ani.save(f, writer=writervideo)
             print("Done")
     elif not skipped and choice == "2":
-        plot_times(wf_modulus_squared, [0, 500, 1000, 1500, 2000])
+        if N >= 2000:
+            plot_times(wf_modulus_squared, [0, 500, 1000, 1500, 2000])
+        else:
+            print(f"{bcolors.FAIL}Cannot make this computation: N (value: {N}) is smaller than 2000{bcolors.ENDC}")
     elif not skipped and choice == "3":
+        print("The accuracy of this method will be analysed by computing the integral of |ψ|2 ".translate(SUP) + "and calculating its average and deviation from the theroetical value, which is 1.")
+        avg = list_average(integral_list)
+        sd = list_standard_deviation(integral_list, 1)
+        sd = format_exp(sd)
+        print("Average of ∫ |ψ|2 dx =".translate(SUP) + f"{bcolors.OKCYAN}", avg, f"{bcolors.ENDC}")
+        print("Standard deviation of ∫ |ψ|2 dx with respect to one =".translate(SUP)+ f"{bcolors.OKCYAN}", sd, f"{bcolors.ENDC}")
+    elif not skipped and choice == "4":
         integral_list = transmission_prob(wf_modulus_squared)
 
         t = [ k*Dt for k in range(N) ]
@@ -327,8 +375,30 @@ if __name__=="__main__":
         print("Saved figure to", f)
 
         plt.show()
-    elif choice == "4":
-        k_0_list = [2]#[0.5, 0.75, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 7, 8]
+    elif choice == "5":
+        k_0_list = [0.5, 0.75, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 7, 8]
+        print("Enter the values of k0".translate(SUB)  + " (separated by commas) for which you would like to calculate the transmission probability.")
+        k_0_list_custom = input("Press [enter] for default, " + str(k_0_list) + f":{bcolors.OKGREEN} ")
+        if k_0_list_custom:
+            k_0_list_custom = re.findall(r'[0123456789\.]+(?![0123456789\.])', k_0_list_custom)
+            k_0_list_custom_correct = []
+            for k in k_0_list_custom:
+                try:
+                    k = float(k)
+                    k_0_list_custom_correct.append(k)
+                except:
+                    pass
+            if k_0_list_custom_correct:
+                k_0_list = k_0_list_custom_correct
+                print(f"{bcolors.ENDC}Using values: " + str(k_0_list) + "\n")
+            else:
+                print(f"{bcolors.ENDC}" + "Using default values of k0".translate(SUB) + "\n")
+        else:
+            print(f"{bcolors.ENDC}" + "Using default values of k0".translate(SUB) + "\n")
+
+
+        
+        #k_0_list = [ 0.2 * i for i in range(1,40) ]
         transmission_probability_functions = []
         for i in k_0_list:
             k_0 = i

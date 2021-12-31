@@ -28,9 +28,17 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
-# SUBSCRIPTS AND SUPERSCRIPTS
+# SUBSCRIPTS, SUPERSCRIPTS AND FORMATTING
 SUB = str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉")
-SUP = str.maketrans("0123456789", "⁰¹²³⁴⁵⁶⁷⁸⁹")
+SUP = str.maketrans("0123456789-", "⁰¹²³⁴⁵⁶⁷⁸⁹⁻")
+
+def format_exp(num):
+    num = str(num)
+    match = re.findall(r'[\+]?([0123456789\.\-]+)(?:e[+]?([0123456789\-]+))?', num)[0]
+    num = match[0] + "·10" + match[1].translate(SUP)
+    return num
+
+
 
 # IMPORT WAVE FUNCTION MATRIX FROM .TXT
 def import_wavefunction_mat(filename="wavefunction.txt"):
@@ -93,3 +101,11 @@ def export_mat(mat, filename="wavefunction.txt"):
             f.write(str(np.round(mat[row, column], 10)) + "\t")
         f.write("\n")
     f.close()
+
+
+# STATISTICS FUNCTIONS
+def list_average(lst):
+    return sum(lst) / float(len(lst))
+
+def list_standard_deviation(lst, num):
+    return np.sqrt( sum( [ ( value - num )**2 for value in lst ] ) / float( len( lst ) ) )
