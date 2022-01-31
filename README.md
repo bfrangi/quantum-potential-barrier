@@ -6,7 +6,7 @@ First, make sure you have installed ```git``` on your system (info on how to ins
 
 ## Requirements
 
-To run this code on your system you sill need:
+To run this code on your system you will need:
 
 - Python version: 3.8.5
 
