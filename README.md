@@ -16,6 +16,6 @@ First, make sure you have installed ```git``` on your system (info on how to ins
 
 To run this code on your system you will need:
 
-- Python version: 3.8.5
+- Python version: made with python 3.8.5
 
 - Manual installation of these python packages: ```matplotlib```, ```numpy```, ```rich``` and ```progressbar```
