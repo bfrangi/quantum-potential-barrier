@@ -1,5 +1,5 @@
 # Quantum Potential Barrier Simulation
-Numerical lab session in Physics Engineering
+Numerical simulation in Physics Engineering
 
 ## Contents
 
