@@ -1,4 +1,4 @@
-# Quantum Potential Barrier - Numerical Lab Session
+# Quantum Potential Barrier Simulation
 Numerical lab session in Physics Engineering
 
 ## Clone this repository
