@@ -152,9 +152,9 @@ def main_from_files():
 
     # IMPORT MATRIX OF THE MODULUS SQUARED FROM .NPY
     filename = "wavefunction_modulus_squared.npy"
-    print("Importing Wave Function Modulus Squared from File", filename)
+    print("Importing Wave Function Modulus Squared from File", filename, "...")
     wf_modulus_squared = import_matrix(filename)
-    print("done")
+    print(f"{bcolors.OKGREEN}done{bcolors.ENDC}")
 
     # INTEGRATE
     integral_list = export_integral(wf_modulus_squared)
