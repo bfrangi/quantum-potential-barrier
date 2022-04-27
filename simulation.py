@@ -14,16 +14,6 @@ def V(x):
     else:
         return 0
 
-# SPACE AND TIME VECTORS
-def generate_x_and_t(M, Dx, x_min, N, Dt):
-    t = []
-    x = []
-    for k in range(N):
-        t.append( k*Dt )
-    for k in range(M):
-        x.append( x_min + k*Dx )
-    return np.array(x), np.array(t)
-
 # INITIAL WAVE FUNCTION
 def initial_wf(x_vector):
     wf_0 = np.zeros(len(x_vector), dtype='complex')
@@ -99,7 +89,8 @@ def animate(i):
 # MAIN FUNCTIONS
 def main_from_scratch(export_and_integrate=True):
     # CREATE SPACE AND TIME VECTORS AND WAVE FUNCTION MATRIX
-    x, t = generate_x_and_t(M, Dx, x_min, N, Dt)#create the space and time vectors
+    x = np.linspace(x_min, x_min + Dx * (M - 1), M)
+    t = np.linspace(0, Dt * (N - 1), N)
     wf = np.zeros([M, N], dtype='complex')# Create a matrix to store the wave function accross space (rows) and time (columns)
     wf[:,0] = initial_wf(x)# Set the initial wave function
     
