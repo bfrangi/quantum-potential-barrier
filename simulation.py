@@ -26,13 +26,7 @@ def phi_0(x):
 
 # MODULUS SQUARED OF THE WAVE FUNCTION
 def modulus_squared(mat):
-    print("Modulus Squared of the Wave Function")
-    mod_sq = np.zeros([M, N])
-    progressbar = ProgressBar(widgets=widgets, maxval=10000000)
-    for row in progressbar(range(M)):
-        for col in range(N):
-            mod_sq[row, col] = np.absolute(mat[row, col])**2
-    return mod_sq
+    return np.absolute(mat)**2
 
 # INTEGRAL OF THE MODULUS SQUARED OF THE WAVEFUNCTION
 def integral_modulus_squared(mod_sq):
