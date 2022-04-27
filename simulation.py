@@ -22,18 +22,14 @@ def modulus_squared(mat):
     return np.absolute(mat)**2
 
 # INTEGRAL OF THE MODULUS SQUARED OF THE WAVEFUNCTION
-def integral_modulus_squared(mod_sq):# < ------------------------------------------------- OPTIMIZE
-    print("Integral of the Modulus Squared of the Wave Function")
+def integral_modulus_squared(mod_sq):
+    print("Integral of the Modulus Squared of the Wave Function:")
     integral_list = []
     progressbar = ProgressBar(widgets=widgets, maxval=10000000)
     for col in progressbar(range(N)):
-        integral = 0
-        for row in range(M):
-            if row == 0 or row == M - 1:
-                integral += 0.5 * mod_sq[row, col] * Dx
-            else:
-                integral += mod_sq[row, col] * Dx
+        integral = ( np.sum(mod_sq[:,col]) - 0.5 * ( mod_sq[0, col] + mod_sq[M - 1, col] ) ) * Dx
         integral_list.append(integral)
+    print(f"{bcolors.OKGREEN}done{bcolors.ENDC}")
     return integral_list
 
 def export_integral(wf_modulus_squared):
@@ -136,13 +132,13 @@ def main_from_scratch(export_and_integrate=True):
     # STORE THE MATRICES IN A FILE
     if export_and_integrate:    
         filename = "wavefunction.npy"
-        print("\nExporting Wave Function to File", filename, end=" ")
+        print("\nExporting Wave Function to File", filename)
         export_matrix(wf, filename)
-        print("...done")
+        print(f"{bcolors.OKGREEN}done{bcolors.ENDC}")
         filename = "wavefunction_modulus_squared.npy"
-        print("Exporting Wave Function Modulus Squared to File", filename, end=" ")
+        print("Exporting Wave Function Modulus Squared to File", filename)
         export_matrix(wf_modulus_squared, filename)
-        print("...done")
+        print(f"{bcolors.OKGREEN}done{bcolors.ENDC}")
 
         # INTEGRATE
         print("")
@@ -158,9 +154,9 @@ def main_from_files():
 
     # IMPORT MATRIX OF THE MODULUS SQUARED FROM .NPY
     filename = "wavefunction_modulus_squared.npy"
-    print("Importing Wave Function Modulus Squared from File", filename, end=" ")
+    print("Importing Wave Function Modulus Squared from File", filename)
     wf_modulus_squared = import_matrix(filename)
-    print("...done")
+    print("done")
 
     # INTEGRATE
     integral_list = export_integral(wf_modulus_squared)
