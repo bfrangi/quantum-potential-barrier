@@ -38,69 +38,18 @@ def format_exp(num):
     num = match[0] + "·10" + match[1].translate(SUP)
     return num
 
+# IMPORT MATRIX FROM .NPY
+def import_matrix(filename):
+	f = open(filename, 'rb')
+	matrix = np.load(f)
+	f.close()
+	return matrix
 
-
-# IMPORT WAVE FUNCTION MATRIX FROM .TXT
-def import_wavefunction_mat(filename="wavefunction.txt"):
-    f = open(filename, 'r')
-    lines = f.readlines()
-    f.close()
-
-    rows = len(lines[0].strip().split("\t"))
-    columns = len(lines)
-    
-    mat = np.zeros([rows, columns], dtype='complex')
-    
-    print("Importing Wave Function Matrix from File", filename)
-    progressbar = ProgressBar(widgets=widgets, maxval=10000000)
-    for column in progressbar(range(columns)):
-        col = lines[column].strip().split("\t")
-        for row in range(rows):
-            num = col[row].strip()
-            reg = re.findall(r'[\(]?([\+\-0123456789\.]+(?:e[\-]?[0-9]+)?(?=[\+\-]))?[\+]?([\-0123456789\.]+(?:e[\-]?[0-9]+)?)j[\)]?', num)
-            real_part, complex_part = reg[0][0], reg[0][1]
-            if real_part:
-                real_part = float(real_part)
-            else:
-                real_part = 0
-            if complex_part:
-                complex_part = float(complex_part)
-            else:
-                complex_part = 0
-            mat[row, column] = real_part + complex_part * I
-    
-    return mat
-
-# IMPORT WAVEFUNCTION MODULUS SQUARED MATRIX FROM .TXT
-def import_wavefunction_modulus_mat(filename="wavefunction_modulus_squared.txt"):
-    f = open(filename, 'r')
-    lines = f.readlines()
-    f.close()
-
-    rows = len(lines[0].strip().split("\t"))
-    columns = len(lines)
-
-    mat = np.zeros([rows, columns])
-
-    print("Importing Wave Function Modulus Squared Matrix from File", filename)
-    progressbar = ProgressBar(widgets=widgets, maxval=10000000)
-    for column in progressbar(range(columns)):
-        col = lines[column].strip().split("\t")
-        for row in range(rows):
-            mat[row, column] = float(col[row].strip())
-    
-    return mat
-
-# EXPORT MATRIX TO .TXT
-def export_mat(mat, filename="wavefunction.txt"):
-    progressbar = ProgressBar(widgets=widgets, maxval=10000000)
-    rows, columns = np.shape(mat)
-    f = open(filename, 'w')
-    for column in progressbar(range(columns)):
-        for row in range(rows):
-            f.write(str(np.round(mat[row, column], 10)) + "\t")
-        f.write("\n")
-    f.close()
+# EXPORT MATRIX TO .NPY
+def export_matrix(matrix, filename):
+	f = open(filename, 'wb')
+	np.save(f, matrix)
+	f.close()
 
 
 # STATISTICS FUNCTIONS
