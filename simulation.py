@@ -23,10 +23,9 @@ def modulus_squared(mat):
 
 # INTEGRAL OF THE MODULUS SQUARED OF THE WAVEFUNCTION
 def integral_modulus_squared(mod_sq):
-    print("Integral of the Modulus Squared of the Wave Function:")
+    print("Computing Integral of the Modulus Squared of the Wave Function...")
     integral_list = []
-    progressbar = ProgressBar(widgets=widgets, maxval=10000000)
-    for col in progressbar(range(N)):
+    for col in range(N):
         integral = ( np.sum(mod_sq[:,col]) - 0.5 * ( mod_sq[0, col] + mod_sq[M - 1, col] ) ) * Dx
         integral_list.append(integral)
     print(f"{bcolors.OKGREEN}done{bcolors.ENDC}")
@@ -132,16 +131,15 @@ def main_from_scratch(export_and_integrate=True):
     # STORE THE MATRICES IN A FILE
     if export_and_integrate:    
         filename = "wavefunction.npy"
-        print("\nExporting Wave Function to File", filename)
+        print("\nExporting Wave Function to File", filename, "...")
         export_matrix(wf, filename)
         print(f"{bcolors.OKGREEN}done{bcolors.ENDC}")
         filename = "wavefunction_modulus_squared.npy"
-        print("Exporting Wave Function Modulus Squared to File", filename)
+        print("Exporting Wave Function Modulus Squared to File", filename, "...")
         export_matrix(wf_modulus_squared, filename)
         print(f"{bcolors.OKGREEN}done{bcolors.ENDC}")
 
         # INTEGRATE
-        print("")
         integral_list = export_integral(wf_modulus_squared)
         return wf_modulus_squared, integral_list
     else:
