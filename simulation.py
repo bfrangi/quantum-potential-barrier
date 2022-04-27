@@ -15,14 +15,7 @@ def V(x):
         return 0
 
 # INITIAL WAVE FUNCTION
-def initial_wf(x_vector):
-    wf_0 = np.zeros(len(x_vector), dtype='complex')
-    for i in range(len(x_vector)):
-        wf_0[i] = phi_0(x_vector[i])
-    return wf_0
-
-def phi_0(x):
-    return ( pi * sigma_0**2 )**( -1/4 ) * e**( I * k_0 * x) * e**( - (x - x_0)**2 / (2*sigma_0**2) )
+initial_wf = lambda x: ( pi * sigma_0**2 )**( -1/4 ) * e**( I * k_0 * x) * e**( - (x - x_0)**2 / (2*sigma_0**2) )
 
 # MODULUS SQUARED OF THE WAVE FUNCTION
 def modulus_squared(mat):
