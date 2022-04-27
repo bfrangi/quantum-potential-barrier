@@ -5,6 +5,8 @@ from quantumpython import *
 from initial_parameters import *
 import os
 from itertools import cycle
+from time import time
+
 
 
 # POTENTIAL FUNCTION
@@ -89,39 +91,11 @@ def main_from_scratch(export_and_integrate=True):
 
     R = np.conjugate(L)
 
-    # SOLVING TRIDIAGONAL MATRIX PROBLEM (L·X = S) <---------------------------------------------------- OPTIMIZE
-    print("Matrix of the Wave Function")
-    a = L[0,1]
-    d = lambda i: L[i,i]
-    s = lambda i: S[i]
-
-    a_prime = np.zeros([M,1], dtype='complex')
-    for i in range(M - 1):
-        if i == 0:
-            a_prime[0] = a / d(0)
-        else:
-            a_prime[i] = a / ( d(i) - a * a_prime[i - 1] )
-
-    S = np.matmul(R, wf[:,0])
-    s_prime = np.zeros([M,1], dtype='complex')
-    for i in range(M):
-        if i == 0:
-            s_prime[0] = s(0) / d(0)
-        else:
-            s_prime[i] = ( s(i) - a * s_prime[i - 1] ) / ( d(i) - a * a_prime[i - 1] )
-
-    s_prime = np.zeros([M,1], dtype='complex')
-    progressbar = ProgressBar(widgets=widgets, maxval=10000000)
-    for t in progressbar(range(N - 1)):# iterate over time
-        S = np.matmul(R, wf[:,t])
-        
-        s_prime[0] = s(0) / d(0)
-        for i in range(1, M):
-            s_prime[i] = ( s(i) - a * s_prime[i - 1] ) / ( d(i) - a * a_prime[i - 1] )
-        
-        wf[M - 1, t + 1] = s_prime[M - 1]
-        for i in range(M - 2, -1, -1):
-            wf[i, t + 1] = s_prime[i] - a_prime[i] * wf[i + 1, t + 1]
+    # SOLVING TRIDIAGONAL MATRIX PROBLEM (L·X = S)
+    initial_time = time()
+    algorithm(wf, R, L)
+    time_taken = time() - initial_time
+    print("Time taken:", time_taken)
 
     # CALCULATE THE MODULUS
     wf_modulus_squared = modulus_squared(wf)
@@ -142,6 +116,39 @@ def main_from_scratch(export_and_integrate=True):
         return wf_modulus_squared, integral_list
     else:
         return wf_modulus_squared
+
+def algorithm(wf, R, L): # <---------------------------------------------------- OPTIMIZE
+    print("Matrix of the Wave Function")
+    a = L[0,1]
+    d = lambda i: L[i,i]
+
+    a_prime = np.zeros((M,1), dtype='complex')
+    for i in range(M - 1):
+        if i == 0:
+            a_prime[0] = a / d(0)
+        else:
+            a_prime[i] = a / ( d(i) - a * a_prime[i - 1] )
+
+    s = np.matmul(R, wf[:,0])
+    s_prime = np.zeros((M,1), dtype='complex')
+    for i in range(M):
+        if i == 0:
+            s_prime[0] = s[0] / d(0)
+        else:
+            s_prime[i] = ( s[i] - a * s_prime[i - 1] ) / ( d(i) - a * a_prime[i - 1] )
+
+    s_prime = np.zeros([M,1], dtype='complex')
+    progressbar = ProgressBar(widgets=widgets, maxval=10000000)
+    for t in progressbar(range(N - 1)):# iterate over time
+        s = np.matmul(R, wf[:,t])
+        
+        s_prime[0] = s[0] / d(0)
+        for i in range(1, M):
+            s_prime[i] = ( s[i] - a * s_prime[i - 1] ) / ( d(i) - a * a_prime[i - 1] )
+        
+        wf[M - 1, t + 1] = s_prime[M - 1]
+        for i in range(M - 2, -1, -1):
+            wf[i, t + 1] = s_prime[i] - a_prime[i] * wf[i + 1, t + 1]
 
 def main_from_files():
     # IMPORT WAVEFUNCTION MATRIX FROM .NPY
