@@ -114,16 +114,14 @@ def main_from_scratch(export_and_integrate=True):
     progressbar = ProgressBar(widgets=widgets, maxval=10000000)
     for t in progressbar(range(N - 1)):# iterate over time
         S = np.matmul(R, wf[:,t])
-        for i in range(M):
-            if i == 0:
-                s_prime[0] = s(0) / d(0)
-            else:
-                s_prime[i] = ( s(i) - a * s_prime[i - 1] ) / ( d(i) - a * a_prime[i - 1] )
-        for i in range(M - 1, -1, -1):
-            if i == M - 1:
-                wf[M - 1, t + 1] = s_prime[M - 1]
-            else:
-                wf[i, t + 1] = s_prime[i] - a_prime[i] * wf[i + 1, t + 1]
+        
+        s_prime[0] = s(0) / d(0)
+        for i in range(1, M):
+            s_prime[i] = ( s(i) - a * s_prime[i - 1] ) / ( d(i) - a * a_prime[i - 1] )
+        
+        wf[M - 1, t + 1] = s_prime[M - 1]
+        for i in range(M - 2, -1, -1):
+            wf[i, t + 1] = s_prime[i] - a_prime[i] * wf[i + 1, t + 1]
 
     # CALCULATE THE MODULUS
     wf_modulus_squared = modulus_squared(wf)
