@@ -7,8 +7,6 @@ import os
 from itertools import cycle
 from time import time
 
-
-
 # POTENTIAL FUNCTION
 def V(x):
     if 0 < x < l:
