@@ -1,5 +1,5 @@
 # NORMALIZED VALUES OF THE PARAMETERS
-sigma_0 = 3                             #Spatial width of the wavefunction
+sigma_0 = 7                             #Spatial width of the wavefunction
 k_0 = 1                                 #Constant that is proportional to the velocity of the packet
 x_0 = -10                               #Value around which the initial wave function is centered
 
@@ -13,6 +13,9 @@ m = 1                                   #Mass of the particle (Mass is normalize
 
 N = 2000                                #Total values of time (Time is normalized with: t = t_real · E_h/h_bar)
 Dt = 0.005                              #Time interval 
-t = N * Dt                              #Total time 
+t_tot = (N - 1) * Dt                    #Total time 
 
-#Note also that energy is normalized as E = E_real/E_h 
+#Note also that energy is normalized as E = E_real/E_h
+
+# For the last exercise, calculate transmission probability for:
+k_0_list = [0.5, 0.75, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 7, 8]
