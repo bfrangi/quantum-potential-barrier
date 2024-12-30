@@ -1,5 +1,7 @@
 # Simulating the Collision of an Electron with a Finite Quantum Potential Square Barrier
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14576743.svg)](https://doi.org/10.5281/zenodo.14576743)
+
 Code for *Simulating the Collision of an Electron with a Finite Quantum Potential Square Barrier* developed for a *Quantum Mechanics* course of the UC3M *Engineering Physics* degree.
 
 ## Contents
@@ -27,5 +29,19 @@ Run the simulation scripts using:
 
 ```
 python3 <script-name>.py
+```
+
+## Cite this repository
+
+```bibtex
+@software{bernat_frangi_2024_14576743,
+  author       = {Bernat Frangi},
+  title        = {Simulating the Collision of an Electron with a Finite Quantum Potential Square Barrier},
+  month        = 12,
+  year         = 2024,
+  publisher    = {Zenodo},
+  doi          = {10.5281/zenodo.14576743},
+  url          = {https://doi.org/10.5281/zenodo.14576743},
+}
 ```
 
