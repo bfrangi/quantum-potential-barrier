@@ -1,6 +1,6 @@
-# Quantum Potential Barrier Simulation
+# Simulating the Collision of an Electron with a Finite Quantum Potential Square Barrier
 
-Code for *Numerical Simulation of a Quantum Potential Barrier* developed for a *Quantum Mechanics* course of the UC3M *Engineering Physics* degree.
+Code for *Simulating the Collision of an Electron with a Finite Quantum Potential Square Barrier* developed for a *Quantum Mechanics* course of the UC3M *Engineering Physics* degree.
 
 ## Contents
 
