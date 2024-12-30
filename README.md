@@ -1,5 +1,6 @@
 # Quantum Potential Barrier Simulation
-Numerical simulation in Physics Engineering
+
+Code for *Numerical Simulation of a Quantum Potential Barrier* developed for a *Quantum Mechanics* course of the UC3M *Engineering Physics* degree.
 
 ## Contents
 
@@ -19,3 +20,12 @@ To run this code on your system you will need:
 - Python version: made with python 3.8.5
 
 - Manual installation of these python packages: ```matplotlib```, ```numpy```, ```rich``` and ```progressbar```
+
+## Run
+
+Run the simulation scripts using:
+
+```
+python3 <script-name>.py
+```
+
